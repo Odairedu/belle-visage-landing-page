@@ -1,26 +1,41 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Header } from "@/components/Header";
+import { Hero } from "@/components/Hero";
+import { ProductSection } from "@/components/ProductSection";
+import { Benefits } from "@/components/Benefits";
+import { AboutBrand } from "@/components/AboutBrand";
+import { Footer } from "@/components/Footer";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Belle Visage — Spray facial anti-acne" },
+      {
+        name: "description",
+        content:
+          "Belle Visage é um spray facial com niacinamida e ácido salicílico que seca espinhas, reduz vermelhidão e controla a oleosidade. Para todos os tipos de pele.",
+      },
+      { property: "og:title", content: "Belle Visage — Spray facial anti-acne" },
+      {
+        property: "og:description",
+        content: "Diga adeus às espinhas. Spray prático, rápido e eficaz.",
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main>
+        <Hero />
+        <ProductSection />
+        <Benefits />
+        <AboutBrand />
+      </main>
+      <Footer />
     </div>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
