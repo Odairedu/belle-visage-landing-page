@@ -1,4 +1,4 @@
-import productImg from "@/assets/belle-visage-product.jpg";
+import productImg from "@/assets/belle-visage-product.png";
 import { Star } from "./Star";
 
 export function Hero() {
