@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Minus, Plus, ShoppingBag, Truck, ShieldCheck, Sparkles } from "lucide-react";
-import productImg from "@/assets/belle-visage-product.jpg";
+import productImg from "@/assets/belle-visage-product.png";
 import { Star } from "./Star";
 
 export function ProductSection() {
