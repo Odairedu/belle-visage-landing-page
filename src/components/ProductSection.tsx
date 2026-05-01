@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Minus, Plus, ShoppingBag, Truck, ShieldCheck, Sparkles } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Truck, ShieldCheck, Sparkles, Flower2 } from "lucide-react";
 import productImg from "@/assets/belle-visage-product.png";
 import { Star } from "./Star";
 
@@ -32,9 +32,11 @@ export function ProductSection() {
         <div>
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Best seller</span>
           <h2 className="mt-3 font-display text-4xl md:text-5xl font-semibold leading-tight">
-            Belle Visage <br />
-            <span className="text-gradient-primary">Spray para Espinhas</span>
+            Belle Visage
           </h2>
+          <p className="mt-2 font-display text-2xl md:text-3xl text-gradient-primary font-medium">
+            spray para espinhas
+          </p>
 
           <div className="mt-4 flex items-center gap-3 text-sm">
             <div className="flex items-center gap-0.5">
@@ -46,11 +48,12 @@ export function ProductSection() {
           </div>
 
           <p className="mt-6 text-muted-foreground leading-relaxed">
-            Belle Visage é um spray facial desenvolvido com ativos poderosos como{" "}
-            <strong className="text-foreground">niacinamida</strong> e{" "}
-            <strong className="text-foreground">ácido salicílico</strong>, ajudando a secar
-            espinhas, reduzir vermelhidão e controlar a oleosidade. Sua fórmula leve é ideal
-            para todos os tipos de pele e pode ser usada diariamente.
+            Um cosmético com propriedades <strong className="text-foreground">calmantes</strong>,{" "}
+            <strong className="text-foreground">hidratantes</strong>,{" "}
+            <strong className="text-foreground">refrescantes</strong> e{" "}
+            <strong className="text-foreground">cicatrizantes</strong>. O Belle Visage ajuda a
+            reduzir a vermelhidão, controla a oleosidade da pele, auxilia na prevenção de novas
+            espinhas, proporcionando sensação refrescante e calmante.
           </p>
 
           {/* Quantity & price */}
@@ -86,7 +89,7 @@ export function ProductSection() {
             Comprar agora
           </button>
 
-          <div className="mt-8 grid grid-cols-3 gap-4 text-xs text-muted-foreground">
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs text-muted-foreground">
             <div className="flex flex-col items-center text-center gap-1">
               <Truck className="h-5 w-5 text-primary" />
               Frete grátis acima de R$ 120
@@ -97,7 +100,11 @@ export function ProductSection() {
             </div>
             <div className="flex flex-col items-center text-center gap-1">
               <Sparkles className="h-5 w-5 text-primary" />
-              Resultados em 7 dias
+              Resultados a partir de 1 semana
+            </div>
+            <div className="flex flex-col items-center text-center gap-1">
+              <Flower2 className="h-5 w-5 text-primary" />
+              Produto natural
             </div>
           </div>
         </div>
