@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { CheckCircle2 } from "lucide-react";
 import { Minus, Plus, ShoppingBag, Tag, CreditCard, QrCode, FileText, ArrowLeft } from "lucide-react";
 import productImg from "@/assets/belle-visage-product.png";
 import { Logo } from "@/components/Logo";
@@ -89,12 +90,16 @@ function CheckoutPage() {
 
   // Reviews
   const [reviews, setReviews] = useState([
-    { stars: 5, text: "Adorei o produto! Funcionou muito bem pra minha pele." },
-    { stars: 2, text: "Não funcionou muito pra mim, mas a textura é boa." },
-    { stars: 5, text: "Foi o único produto que realmente ajudou minhas espinhas!" },
+    { name: "Mariana", stars: 5, text: "Adorei o produto! Funcionou muito bem pra minha pele." },
+    { name: "Juliana", stars: 4, text: "Textura ótima e cheirinho leve. Recomendo demais." },
+    { name: "Carolina", stars: 5, text: "Foi o único produto que realmente ajudou minhas espinhas!" },
   ]);
   const [newReview, setNewReview] = useState("");
+  const [newName, setNewName] = useState("");
   const [newStars, setNewStars] = useState(5);
+
+  const navigate = useNavigate();
+  const [success, setSuccess] = useState(false);
 
   const submitReview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,8 +107,9 @@ function CheckoutPage() {
       toast.error("Escreva um comentário antes de enviar.");
       return;
     }
-    setReviews((r) => [{ stars: newStars, text: newReview.trim() }, ...r]);
+    setReviews((r) => [{ name: newName.trim() || "Cliente Belle Visage", stars: newStars, text: newReview.trim() }, ...r]);
     setNewReview("");
+    setNewName("");
     setNewStars(5);
     toast.success("Avaliação enviada com sucesso!");
   };
@@ -131,7 +137,9 @@ function CheckoutPage() {
         return;
       }
     }
-    toast.success("Compra finalizada com sucesso! 🎉");
+    setSuccess(true);
+    toast.success("Compra realizada com sucesso! 🎉");
+    setTimeout(() => navigate({ to: "/" }), 2400);
   };
 
   const inputCls = "w-full h-11 rounded-xl border border-border bg-background px-4 text-sm outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition";
@@ -347,28 +355,47 @@ function CheckoutPage() {
           <div className="grid md:grid-cols-3 gap-5">
             {reviews.map((r, i) => (
               <article key={i} className="rounded-3xl bg-background border border-border/60 p-6 shadow-soft">
-                <div className="flex items-center gap-0.5 mb-3">
+                <div className="flex items-center gap-1 mb-3">
                   {Array.from({ length: 5 }).map((_, j) => (
-                    <Star key={j} color={j < r.stars ? "primary" : "secondary"} size={14} />
+                    <Star key={j} color={j < r.stars ? "primary" : "secondary"} size={20} />
                   ))}
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">"{r.text}"</p>
+                <div className="mt-4 flex items-center gap-3 pt-4 border-t border-border/50">
+                  <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary/30 to-secondary grid place-items-center text-xs font-semibold text-primary">
+                    {r.name.charAt(0)}
+                  </div>
+                  <span className="text-sm font-medium">{r.name}</span>
+                </div>
               </article>
             ))}
           </div>
 
           <form onSubmit={submitReview} className="mt-8 rounded-3xl bg-background border border-border/60 p-6 md:p-8 shadow-soft">
             <h3 className="font-display text-lg font-semibold mb-4">Deixe sua avaliação</h3>
-            <label className={labelCls}>Sua nota</label>
-            <div className="flex items-center gap-1 mb-4">
-              {Array.from({ length: 5 }).map((_, i) => {
-                const n = i + 1;
-                return (
-                  <button key={n} type="button" onClick={() => setNewStars(n)} aria-label={`${n} estrelas`} className="p-1 hover:scale-110 transition">
-                    <Star color={n <= newStars ? "primary" : "secondary"} size={22} />
-                  </button>
-                );
-              })}
+            <div className="grid sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className={labelCls}>Seu nome</label>
+                <input
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Como devemos te chamar"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Sua nota</label>
+                <div className="flex items-center gap-1 h-11">
+                  {Array.from({ length: 5 }).map((_, i) => {
+                    const n = i + 1;
+                    return (
+                      <button key={n} type="button" onClick={() => setNewStars(n)} aria-label={`${n} estrelas`} className="p-1 hover:scale-110 transition">
+                        <Star color={n <= newStars ? "primary" : "secondary"} size={28} />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
             <label className={labelCls}>Comentário</label>
             <textarea
@@ -384,6 +411,23 @@ function CheckoutPage() {
           </form>
         </section>
       </main>
+
+      {success && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-background/80 backdrop-blur-md animate-fade-up">
+          <div className="mx-4 max-w-md w-full rounded-3xl bg-background border border-border p-8 md:p-10 shadow-glow text-center">
+            <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 grid place-items-center mb-4">
+              <CheckCircle2 className="h-10 w-10 text-primary" />
+            </div>
+            <h2 className="font-display text-2xl font-semibold">Compra realizada com sucesso!</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Obrigado pela sua compra. Você será redirecionada para a página inicial em instantes.
+            </p>
+            <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-secondary">
+              <div className="h-full bg-primary animate-[loading_2.4s_linear_forwards]" style={{ width: "100%" }} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
