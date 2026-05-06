@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Minus, Plus, ShoppingBag, Tag, CreditCard, QrCode, FileText, ArrowLeft } from "lucide-react";
 import productImg from "@/assets/belle-visage-product.png";
 import { Logo } from "@/components/Logo";
