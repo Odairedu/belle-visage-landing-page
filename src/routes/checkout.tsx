@@ -90,11 +90,12 @@ function CheckoutPage() {
 
   // Reviews
   const [reviews, setReviews] = useState([
-    { stars: 5, text: "Adorei o produto! Funcionou muito bem pra minha pele." },
-    { stars: 2, text: "Não funcionou muito pra mim, mas a textura é boa." },
-    { stars: 5, text: "Foi o único produto que realmente ajudou minhas espinhas!" },
+    { name: "Mariana", stars: 5, text: "Adorei o produto! Funcionou muito bem pra minha pele." },
+    { name: "Juliana", stars: 4, text: "Textura ótima e cheirinho leve. Recomendo demais." },
+    { name: "Carolina", stars: 5, text: "Foi o único produto que realmente ajudou minhas espinhas!" },
   ]);
   const [newReview, setNewReview] = useState("");
+  const [newName, setNewName] = useState("");
   const [newStars, setNewStars] = useState(5);
 
   const submitReview = (e: React.FormEvent) => {
