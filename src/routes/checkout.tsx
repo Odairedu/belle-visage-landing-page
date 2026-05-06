@@ -123,7 +123,6 @@ function CheckoutPage() {
         setForm((f) => ({
           ...f,
           nome: data.full_name ?? f.nome,
-          cpf: data.phone ? f.cpf : f.cpf,
           telefone: data.phone ? maskPhone(data.phone) : f.telefone,
           cpf: data.cpf ? maskCPF(data.cpf) : f.cpf,
         }));
