@@ -204,6 +204,29 @@ function CheckoutPage() {
         <div className="mb-8 md:mb-12 animate-fade-up">
           <h1 className="font-display text-3xl md:text-4xl font-semibold">Finalizar compra</h1>
           <p className="text-muted-foreground mt-2">Revise seu pedido e preencha seus dados para concluir.</p>
+          {!authLoading && (
+            user ? (
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 text-sm">
+                <UserCircle2 className="h-4 w-4 text-primary" />
+                <span>
+                  Olá{profileName ? `, ${profileName.split(" ")[0]}` : ""}! Você está identificada como{" "}
+                  <span className="font-semibold text-primary">{user.email}</span>.
+                </span>
+              </div>
+            ) : (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl bg-secondary/40 border border-secondary px-4 py-3 text-sm">
+                <Lock className="h-4 w-4 text-primary" />
+                <span>Entre na sua conta para preenchermos seus dados automaticamente.</span>
+                <button
+                  type="button"
+                  onClick={openAuth}
+                  className="ml-auto inline-flex items-center justify-center h-9 px-4 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition"
+                >
+                  Entrar
+                </button>
+              </div>
+            )
+          )}
         </div>
 
         <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8 items-start">
