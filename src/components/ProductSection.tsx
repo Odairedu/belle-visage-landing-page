@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Minus, Plus, ShoppingBag, Truck, ShieldCheck, Sparkles, Flower2 } from "lucide-react";
 import productImg from "@/assets/belle-visage-product.png";
 import { Star } from "./Star";
@@ -84,10 +85,13 @@ export function ProductSection() {
             </div>
           </div>
 
-          <button className="mt-8 inline-flex w-full sm:w-auto items-center justify-center gap-2 h-14 px-10 rounded-full bg-primary text-primary-foreground font-semibold shadow-glow hover:scale-[1.02] active:scale-[0.98] transition">
+          <Link
+            to="/checkout"
+            className="mt-8 inline-flex w-full sm:w-auto items-center justify-center gap-2 h-14 px-10 rounded-full bg-primary text-primary-foreground font-semibold shadow-glow hover:scale-[1.02] active:scale-[0.98] transition"
+          >
             <ShoppingBag className="h-5 w-5" />
             Comprar agora
-          </button>
+          </Link>
 
           <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs text-muted-foreground">
             <div className="flex flex-col items-center text-center gap-1">

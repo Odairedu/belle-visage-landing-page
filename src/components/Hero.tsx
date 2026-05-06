@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import productImg from "@/assets/belle-visage-product.png";
 import { Star } from "./Star";
 
@@ -35,12 +36,12 @@ export function Hero() {
             Spray prático, rápido e eficaz para todos os tipos de pele.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <a
-              href="#produto"
+            <Link
+              to="/checkout"
               className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-primary text-primary-foreground font-semibold shadow-glow hover:scale-[1.03] active:scale-[0.98] transition"
             >
               Comprar agora
-            </a>
+            </Link>
             <a
               href="#beneficios"
               className="inline-flex items-center justify-center h-14 px-6 rounded-full border border-border bg-background/60 backdrop-blur font-medium hover:border-primary/50 transition"
