@@ -429,28 +429,38 @@ function CheckoutPage() {
 
           <form onSubmit={submitReview} className="mt-8 rounded-3xl bg-background border border-border/60 p-6 md:p-8 shadow-soft">
             <h3 className="font-display text-lg font-semibold mb-4">Deixe sua avaliação</h3>
-            <div className="grid sm:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className={labelCls}>Seu nome</label>
-                <input
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="Como devemos te chamar"
-                  className={inputCls}
-                />
+            {user ? (
+              <div className="mb-4 inline-flex items-center gap-2 text-xs text-muted-foreground">
+                <UserCircle2 className="h-4 w-4 text-primary" />
+                Publicando como{" "}
+                <span className="font-semibold text-foreground">
+                  {profileName || user.email}
+                </span>
               </div>
-              <div>
-                <label className={labelCls}>Sua nota</label>
-                <div className="flex items-center gap-1 h-11">
-                  {Array.from({ length: 5 }).map((_, i) => {
-                    const n = i + 1;
-                    return (
-                      <button key={n} type="button" onClick={() => setNewStars(n)} aria-label={`${n} estrelas`} className="p-1 hover:scale-110 transition">
-                        <Star color={n <= newStars ? "primary" : "secondary"} size={28} />
-                      </button>
-                    );
-                  })}
-                </div>
+            ) : (
+              <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl bg-secondary/40 border border-secondary px-4 py-3 text-xs">
+                <Lock className="h-3.5 w-3.5 text-primary" />
+                <span>Entre na sua conta para deixar uma avaliação.</span>
+                <button
+                  type="button"
+                  onClick={openAuth}
+                  className="ml-auto inline-flex items-center justify-center h-8 px-3 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition"
+                >
+                  Entrar
+                </button>
+              </div>
+            )}
+            <div className="mb-4">
+              <label className={labelCls}>Sua nota</label>
+              <div className="flex items-center gap-1 h-11">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const n = i + 1;
+                  return (
+                    <button key={n} type="button" onClick={() => setNewStars(n)} aria-label={`${n} estrelas`} className="p-1 hover:scale-110 transition">
+                      <Star color={n <= newStars ? "primary" : "secondary"} size={28} />
+                    </button>
+                  );
+                })}
               </div>
             </div>
             <label className={labelCls}>Comentário</label>
