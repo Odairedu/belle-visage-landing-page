@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CheckCircle2, Lock, UserCircle2 } from "lucide-react";
 import { Minus, Plus, ShoppingBag, Tag, CreditCard, QrCode, FileText, ArrowLeft } from "lucide-react";
 import productImg from "@/assets/belle-visage-product.png";
 import { Logo } from "@/components/Logo";
 import { Star } from "@/components/Star";
 import { toast } from "sonner";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -95,27 +97,63 @@ function CheckoutPage() {
     { name: "Carolina", stars: 5, text: "Foi o único produto que realmente ajudou minhas espinhas!" },
   ]);
   const [newReview, setNewReview] = useState("");
-  const [newName, setNewName] = useState("");
   const [newStars, setNewStars] = useState(5);
 
   const navigate = useNavigate();
   const [success, setSuccess] = useState(false);
 
+  const { user, loading: authLoading, openAuth } = useAuth();
+  const [profileName, setProfileName] = useState("");
+
+  // Load profile + prefill form when user logs in
+  useEffect(() => {
+    if (!user) {
+      setProfileName("");
+      return;
+    }
+    setForm((f) => ({ ...f, email: user.email ?? f.email }));
+    supabase
+      .from("profiles")
+      .select("full_name, phone, cpf")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) return;
+        setProfileName(data.full_name ?? "");
+        setForm((f) => ({
+          ...f,
+          nome: data.full_name ?? f.nome,
+          telefone: data.phone ? maskPhone(data.phone) : f.telefone,
+          cpf: data.cpf ? maskCPF(data.cpf) : f.cpf,
+        }));
+      });
+  }, [user]);
+
   const submitReview = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("Faça login para enviar uma avaliação.");
+      openAuth();
+      return;
+    }
     if (!newReview.trim()) {
       toast.error("Escreva um comentário antes de enviar.");
       return;
     }
-    setReviews((r) => [{ name: newName.trim() || "Cliente Belle Visage", stars: newStars, text: newReview.trim() }, ...r]);
+    const name = profileName.trim() || user.email?.split("@")[0] || "Cliente Belle Visage";
+    setReviews((r) => [{ name, stars: newStars, text: newReview.trim() }, ...r]);
     setNewReview("");
-    setNewName("");
     setNewStars(5);
     toast.success("Avaliação enviada com sucesso!");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("Faça login para finalizar a compra.");
+      openAuth();
+      return;
+    }
     const required: (keyof typeof form)[] = ["nome", "cpf", "telefone", "email", "rua", "numero", "bairro", "cidade", "estado", "cep"];
     for (const k of required) {
       if (!form[k].trim()) {
@@ -171,6 +209,29 @@ function CheckoutPage() {
         <div className="mb-8 md:mb-12 animate-fade-up">
           <h1 className="font-display text-3xl md:text-4xl font-semibold">Finalizar compra</h1>
           <p className="text-muted-foreground mt-2">Revise seu pedido e preencha seus dados para concluir.</p>
+          {!authLoading && (
+            user ? (
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-2 text-sm">
+                <UserCircle2 className="h-4 w-4 text-primary" />
+                <span>
+                  Olá{profileName ? `, ${profileName.split(" ")[0]}` : ""}! Você está identificada como{" "}
+                  <span className="font-semibold text-primary">{user.email}</span>.
+                </span>
+              </div>
+            ) : (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl bg-secondary/40 border border-secondary px-4 py-3 text-sm">
+                <Lock className="h-4 w-4 text-primary" />
+                <span>Entre na sua conta para preenchermos seus dados automaticamente.</span>
+                <button
+                  type="button"
+                  onClick={openAuth}
+                  className="ml-auto inline-flex items-center justify-center h-9 px-4 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition"
+                >
+                  Entrar
+                </button>
+              </div>
+            )
+          )}
         </div>
 
         <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8 items-start">
@@ -373,28 +434,38 @@ function CheckoutPage() {
 
           <form onSubmit={submitReview} className="mt-8 rounded-3xl bg-background border border-border/60 p-6 md:p-8 shadow-soft">
             <h3 className="font-display text-lg font-semibold mb-4">Deixe sua avaliação</h3>
-            <div className="grid sm:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className={labelCls}>Seu nome</label>
-                <input
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="Como devemos te chamar"
-                  className={inputCls}
-                />
+            {user ? (
+              <div className="mb-4 inline-flex items-center gap-2 text-xs text-muted-foreground">
+                <UserCircle2 className="h-4 w-4 text-primary" />
+                Publicando como{" "}
+                <span className="font-semibold text-foreground">
+                  {profileName || user.email}
+                </span>
               </div>
-              <div>
-                <label className={labelCls}>Sua nota</label>
-                <div className="flex items-center gap-1 h-11">
-                  {Array.from({ length: 5 }).map((_, i) => {
-                    const n = i + 1;
-                    return (
-                      <button key={n} type="button" onClick={() => setNewStars(n)} aria-label={`${n} estrelas`} className="p-1 hover:scale-110 transition">
-                        <Star color={n <= newStars ? "primary" : "secondary"} size={28} />
-                      </button>
-                    );
-                  })}
-                </div>
+            ) : (
+              <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl bg-secondary/40 border border-secondary px-4 py-3 text-xs">
+                <Lock className="h-3.5 w-3.5 text-primary" />
+                <span>Entre na sua conta para deixar uma avaliação.</span>
+                <button
+                  type="button"
+                  onClick={openAuth}
+                  className="ml-auto inline-flex items-center justify-center h-8 px-3 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition"
+                >
+                  Entrar
+                </button>
+              </div>
+            )}
+            <div className="mb-4">
+              <label className={labelCls}>Sua nota</label>
+              <div className="flex items-center gap-1 h-11">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const n = i + 1;
+                  return (
+                    <button key={n} type="button" onClick={() => setNewStars(n)} aria-label={`${n} estrelas`} className="p-1 hover:scale-110 transition">
+                      <Star color={n <= newStars ? "primary" : "secondary"} size={28} />
+                    </button>
+                  );
+                })}
               </div>
             </div>
             <label className={labelCls}>Comentário</label>
