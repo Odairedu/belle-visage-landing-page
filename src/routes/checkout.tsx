@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CheckCircle2, Lock, UserCircle2 } from "lucide-react";
 import { Minus, Plus, ShoppingBag, Tag, CreditCard, QrCode, FileText, ArrowLeft } from "lucide-react";
 import productImg from "@/assets/belle-visage-product.png";
 import { Logo } from "@/components/Logo";
 import { Star } from "@/components/Star";
 import { toast } from "sonner";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
