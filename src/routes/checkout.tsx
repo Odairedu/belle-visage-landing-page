@@ -149,6 +149,11 @@ function CheckoutPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("Faça login para finalizar a compra.");
+      openAuth();
+      return;
+    }
     const required: (keyof typeof form)[] = ["nome", "cpf", "telefone", "email", "rua", "numero", "bairro", "cidade", "estado", "cep"];
     for (const k of required) {
       if (!form[k].trim()) {
