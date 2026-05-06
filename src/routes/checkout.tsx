@@ -97,21 +97,53 @@ function CheckoutPage() {
     { name: "Carolina", stars: 5, text: "Foi o único produto que realmente ajudou minhas espinhas!" },
   ]);
   const [newReview, setNewReview] = useState("");
-  const [newName, setNewName] = useState("");
   const [newStars, setNewStars] = useState(5);
 
   const navigate = useNavigate();
   const [success, setSuccess] = useState(false);
 
+  const { user, loading: authLoading, openAuth } = useAuth();
+  const [profileName, setProfileName] = useState("");
+
+  // Load profile + prefill form when user logs in
+  useEffect(() => {
+    if (!user) {
+      setProfileName("");
+      return;
+    }
+    setForm((f) => ({ ...f, email: user.email ?? f.email }));
+    supabase
+      .from("profiles")
+      .select("full_name, phone, cpf")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) return;
+        setProfileName(data.full_name ?? "");
+        setForm((f) => ({
+          ...f,
+          nome: data.full_name ?? f.nome,
+          cpf: data.phone ? f.cpf : f.cpf,
+          telefone: data.phone ? maskPhone(data.phone) : f.telefone,
+          cpf: data.cpf ? maskCPF(data.cpf) : f.cpf,
+        }));
+      });
+  }, [user]);
+
   const submitReview = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("Faça login para enviar uma avaliação.");
+      openAuth();
+      return;
+    }
     if (!newReview.trim()) {
       toast.error("Escreva um comentário antes de enviar.");
       return;
     }
-    setReviews((r) => [{ name: newName.trim() || "Cliente Belle Visage", stars: newStars, text: newReview.trim() }, ...r]);
+    const name = profileName.trim() || user.email?.split("@")[0] || "Cliente Belle Visage";
+    setReviews((r) => [{ name, stars: newStars, text: newReview.trim() }, ...r]);
     setNewReview("");
-    setNewName("");
     setNewStars(5);
     toast.success("Avaliação enviada com sucesso!");
   };
