@@ -98,14 +98,18 @@ function CheckoutPage() {
   const [newName, setNewName] = useState("");
   const [newStars, setNewStars] = useState(5);
 
+  const navigate = useNavigate();
+  const [success, setSuccess] = useState(false);
+
   const submitReview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newReview.trim()) {
       toast.error("Escreva um comentário antes de enviar.");
       return;
     }
-    setReviews((r) => [{ stars: newStars, text: newReview.trim() }, ...r]);
+    setReviews((r) => [{ name: newName.trim() || "Cliente Belle Visage", stars: newStars, text: newReview.trim() }, ...r]);
     setNewReview("");
+    setNewName("");
     setNewStars(5);
     toast.success("Avaliação enviada com sucesso!");
   };
@@ -133,7 +137,9 @@ function CheckoutPage() {
         return;
       }
     }
-    toast.success("Compra finalizada com sucesso! 🎉");
+    setSuccess(true);
+    toast.success("Compra realizada com sucesso! 🎉");
+    setTimeout(() => navigate({ to: "/" }), 2400);
   };
 
   const inputCls = "w-full h-11 rounded-xl border border-border bg-background px-4 text-sm outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition";
