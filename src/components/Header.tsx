@@ -1,9 +1,13 @@
-import { Search, User, ShoppingBag, Menu, LogOut } from "lucide-react";
+import { Search, User, Menu, LogOut, ClipboardList } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Logo } from "./Logo";
 import { useAuth } from "./auth/AuthProvider";
 
+const ADMIN_EMAIL = "bellevisage@gmail.com";
+
 export function Header() {
   const { user, openAuth, signOut } = useAuth();
+  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL;
   return (
     <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/70 border-b border-border/60">
       <div className="mx-auto max-w-7xl px-4 md:px-8 h-16 md:h-20 flex items-center gap-4 md:gap-8">
@@ -50,12 +54,16 @@ export function Header() {
               <User className="h-5 w-5" />
             </button>
           )}
-          <button className="relative p-2 rounded-full hover:bg-muted transition" aria-label="Carrinho">
-            <ShoppingBag className="h-5 w-5" />
-            <span className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground grid place-items-center">
-              0
-            </span>
-          </button>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="p-2 rounded-full hover:bg-muted transition text-primary"
+              aria-label="Painel do admin"
+              title="Página do admin"
+            >
+              <ClipboardList className="h-5 w-5" />
+            </Link>
+          )}
           <button className="md:hidden p-2 rounded-full hover:bg-muted transition" aria-label="Menu">
             <Menu className="h-5 w-5" />
           </button>
