@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Star } from "@/components/Star";
+import productImage from "@/assets/belle-visage-product.png";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import {
@@ -159,8 +160,12 @@ function AdminPage() {
             {/* Product stock */}
             <div className="lg:col-span-2 rounded-3xl bg-card border border-border/60 p-6 md:p-8 shadow-[0_10px_40px_-20px_rgba(138,124,255,0.35)]">
               <div className="flex items-start gap-5">
-                <div className="h-24 w-24 md:h-28 md:w-28 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/40 grid place-items-center shrink-0">
-                  <Sparkles className="h-10 w-10 text-primary" />
+                <div className="h-24 w-24 md:h-28 md:w-28 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/40 grid place-items-center shrink-0 overflow-hidden">
+                  <img
+                    src={productImage}
+                    alt="Belle Visage – Spray para espinhas"
+                    className="h-full w-full object-contain p-2"
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs uppercase tracking-wider text-muted-foreground">Produto</p>
