@@ -472,11 +472,14 @@ function Field({
 }
 
 function PasswordField({
-  value, onChange, show, toggle, error, autoComplete,
+  value, onChange, show, toggle, error, autoComplete, label = "Senha",
 }: {
   value: string; onChange: (v: string) => void; show: boolean; toggle: () => void;
-  error?: string; autoComplete?: string;
+  error?: string; autoComplete?: string; label?: string;
 }) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">{label}</label>
   return (
     <div>
       <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Senha</label>
