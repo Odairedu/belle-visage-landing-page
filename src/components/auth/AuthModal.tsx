@@ -480,9 +480,6 @@ function PasswordField({
   return (
     <div>
       <label className="block text-xs font-semibold text-foreground/80 mb-1.5">{label}</label>
-  return (
-    <div>
-      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Senha</label>
       <div className={`flex items-center gap-2 h-12 rounded-xl border bg-background px-3.5 transition ${error ? "border-destructive" : "border-border focus-within:border-primary/60"}`}>
         <Lock className="h-4 w-4 text-muted-foreground" />
         <input
