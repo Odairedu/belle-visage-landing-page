@@ -210,10 +210,18 @@ export function AuthModal() {
           <div className="absolute -bottom-10 -left-10 h-28 w-28 rounded-full bg-secondary/30 blur-2xl" />
           <div className="relative">
             <DialogTitle className="font-display text-3xl font-semibold">
-              {tab === "login" ? "Bem-vinda de volta" : "Crie sua conta"}
+              {tab === "login"
+                ? "Bem-vinda de volta"
+                : tab === "signup"
+                  ? "Crie sua conta"
+                  : "Redefinir senha"}
             </DialogTitle>
             <DialogDescription className="text-primary-foreground/80 mt-1">
-              {tab === "login" ? "Entre na sua conta Belle Visage." : "Junte-se ao Belle Visage."}
+              {tab === "login"
+                ? "Entre na sua conta Belle Visage."
+                : tab === "signup"
+                  ? "Junte-se ao Belle Visage."
+                  : "Recupere o acesso à sua conta."}
             </DialogDescription>
           </div>
         </div>
