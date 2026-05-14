@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { Eye, EyeOff, Loader2, Mail, Lock, User as UserIcon, Phone, IdCard } from "lucide-react";
+import { Eye, EyeOff, Loader2, Mail, Lock, User as UserIcon, Phone, IdCard, CheckCircle2, ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { resetPasswordByEmail } from "@/lib/auth.functions";
 import { useAuth } from "./AuthProvider";
 
-type Tab = "login" | "signup";
+type Tab = "login" | "signup" | "reset";
+type ResetStep = "verify" | "verified" | "newpwd" | "success";
 
 // CPF validation (digits + checksum)
 function isValidCPF(raw: string) {
@@ -65,6 +68,75 @@ export function AuthModal() {
   const [cpf, setCpf] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // reset password flow
+  const [resetStep, setResetStep] = useState<ResetStep>("verify");
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetPhone, setResetPhone] = useState("");
+  const [newPwd, setNewPwd] = useState("");
+  const [confirmPwd, setConfirmPwd] = useState("");
+  const [showNewPwd, setShowNewPwd] = useState(false);
+  const callResetPassword = useServerFn(resetPasswordByEmail);
+
+  const resetResetFlow = () => {
+    setResetStep("verify");
+    setResetEmail("");
+    setResetPhone("");
+    setNewPwd("");
+    setConfirmPwd("");
+    setShowNewPwd(false);
+  };
+
+  const handleResetVerify = (e: React.FormEvent) => {
+    e.preventDefault();
+    reset();
+    const schema = z.object({
+      email: z.string().trim().email({ message: "Email inválido" }),
+      phone: z.string().min(14, { message: "Telefone inválido" }),
+    });
+    const parsed = schema.safeParse({ email: resetEmail, phone: resetPhone });
+    if (!parsed.success) {
+      const errs: Record<string, string> = {};
+      parsed.error.issues.forEach((i) => (errs[i.path[0] as string] = i.message));
+      setErrors(errs);
+      return;
+    }
+    setResetStep("verified");
+    setTimeout(() => setResetStep("newpwd"), 1200);
+  };
+
+  const handleNewPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    reset();
+    if (newPwd.length < 6) {
+      setErrors({ newPwd: "Senha deve ter ao menos 6 caracteres" });
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      setErrors({ confirmPwd: "As senhas não coincidem" });
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await callResetPassword({
+        data: { email: resetEmail, newPassword: newPwd },
+      });
+      setLoading(false);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setResetStep("success");
+      setTimeout(() => {
+        resetResetFlow();
+        switchTab("login");
+        setLoginEmail(resetEmail);
+      }, 2200);
+    } catch {
+      setLoading(false);
+      toast.error("Erro ao alterar senha. Tente novamente.");
+    }
+  };
 
   const reset = () => {
     setErrors({});
@@ -138,35 +210,55 @@ export function AuthModal() {
           <div className="absolute -bottom-10 -left-10 h-28 w-28 rounded-full bg-secondary/30 blur-2xl" />
           <div className="relative">
             <DialogTitle className="font-display text-3xl font-semibold">
-              {tab === "login" ? "Bem-vinda de volta" : "Crie sua conta"}
+              {tab === "login"
+                ? "Bem-vinda de volta"
+                : tab === "signup"
+                  ? "Crie sua conta"
+                  : "Redefinir senha"}
             </DialogTitle>
             <DialogDescription className="text-primary-foreground/80 mt-1">
-              {tab === "login" ? "Entre na sua conta Belle Visage." : "Junte-se ao Belle Visage."}
+              {tab === "login"
+                ? "Entre na sua conta Belle Visage."
+                : tab === "signup"
+                  ? "Junte-se ao Belle Visage."
+                  : "Recupere o acesso à sua conta."}
             </DialogDescription>
           </div>
         </div>
 
         <div className="px-6 pb-6 pt-5">
-          {/* Tabs */}
-          <div className="relative grid grid-cols-2 p-1 rounded-full bg-muted mb-6">
-            <span
-              className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-background shadow-soft transition-all duration-300 ease-out"
-              style={{ left: tab === "login" ? "4px" : "calc(50% + 0px)" }}
-              aria-hidden
-            />
-            {(["login", "signup"] as Tab[]).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => switchTab(t)}
-                className={`relative z-10 h-10 rounded-full text-sm font-semibold transition-colors ${
-                  tab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t === "login" ? "Entrar" : "Cadastrar"}
-              </button>
-            ))}
-          </div>
+          {/* Tabs (hidden during reset) */}
+          {tab !== "reset" && (
+            <div className="relative grid grid-cols-2 p-1 rounded-full bg-muted mb-6">
+              <span
+                className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-background shadow-soft transition-all duration-300 ease-out"
+                style={{ left: tab === "login" ? "4px" : "calc(50% + 0px)" }}
+                aria-hidden
+              />
+              {(["login", "signup"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => switchTab(t)}
+                  className={`relative z-10 h-10 rounded-full text-sm font-semibold transition-colors ${
+                    tab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t === "login" ? "Entrar" : "Cadastrar"}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {tab === "reset" && (
+            <button
+              type="button"
+              onClick={() => { resetResetFlow(); switchTab("login"); }}
+              className="mb-4 inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Voltar para entrar
+            </button>
+          )}
 
           {/* Forms */}
           <div className="relative">
@@ -192,7 +284,7 @@ export function AuthModal() {
                 />
                 <SubmitButton loading={loading} label="Entrar" />
               </form>
-            ) : (
+            ) : tab === "signup" ? (
               <form onSubmit={handleSignup} className="space-y-4 animate-fade-up">
                 <Field
                   icon={<UserIcon className="h-4 w-4" />}
@@ -242,24 +334,110 @@ export function AuthModal() {
                 />
                 <SubmitButton loading={loading} label="Criar conta" />
               </form>
+            ) : (
+              <div className="animate-fade-up">
+                {resetStep === "verify" && (
+                  <form onSubmit={handleResetVerify} className="space-y-4">
+                    <Field
+                      icon={<Mail className="h-4 w-4" />}
+                      label="E-mail"
+                      type="email"
+                      value={resetEmail}
+                      onChange={setResetEmail}
+                      placeholder="voce@email.com"
+                      error={errors.email}
+                      autoComplete="email"
+                    />
+                    <Field
+                      icon={<Phone className="h-4 w-4" />}
+                      label="Telefone"
+                      value={resetPhone}
+                      onChange={(v) => setResetPhone(maskPhone(v))}
+                      placeholder="(11) 99999-9999"
+                      error={errors.phone}
+                      inputMode="tel"
+                      autoComplete="tel"
+                    />
+                    <SubmitButton loading={false} label="Continuar" />
+                  </form>
+                )}
+
+                {resetStep === "verified" && (
+                  <div className="flex flex-col items-center text-center py-8 gap-3 animate-fade-up">
+                    <div className="h-14 w-14 rounded-full bg-secondary/40 flex items-center justify-center">
+                      <CheckCircle2 className="h-8 w-8 text-primary" />
+                    </div>
+                    <p className="text-sm font-semibold text-foreground">
+                      Dados corretos. Agora defina sua nova senha.
+                    </p>
+                  </div>
+                )}
+
+                {resetStep === "newpwd" && (
+                  <form onSubmit={handleNewPassword} className="space-y-4">
+                    <PasswordField
+                      value={newPwd}
+                      onChange={setNewPwd}
+                      show={showNewPwd}
+                      toggle={() => setShowNewPwd((s) => !s)}
+                      error={errors.newPwd}
+                      autoComplete="new-password"
+                      label="Nova senha"
+                    />
+                    <PasswordField
+                      value={confirmPwd}
+                      onChange={setConfirmPwd}
+                      show={showNewPwd}
+                      toggle={() => setShowNewPwd((s) => !s)}
+                      error={errors.confirmPwd}
+                      autoComplete="new-password"
+                      label="Confirmar nova senha"
+                    />
+                    <SubmitButton loading={loading} label="Alterar senha" />
+                  </form>
+                )}
+
+                {resetStep === "success" && (
+                  <div className="flex flex-col items-center text-center py-8 gap-3 animate-fade-up">
+                    <div className="h-14 w-14 rounded-full bg-secondary/40 flex items-center justify-center">
+                      <CheckCircle2 className="h-8 w-8 text-primary" />
+                    </div>
+                    <p className="text-base font-semibold text-foreground">
+                      Senha alterada com sucesso!
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Redirecionando para o login...
+                    </p>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            {tab === "login" ? (
-              <>Ainda não tem conta?{" "}
+          {tab === "login" && (
+            <div className="mt-6 text-center text-xs text-muted-foreground space-y-2">
+              <p>
+                Ainda não tem conta?{" "}
                 <button onClick={() => switchTab("signup")} className="text-primary font-semibold hover:underline">
                   Cadastre-se
                 </button>
-              </>
-            ) : (
-              <>Já tem conta?{" "}
-                <button onClick={() => switchTab("login")} className="text-primary font-semibold hover:underline">
-                  Entrar
+              </p>
+              <p>
+                Esqueceu sua senha?{" "}
+                <button onClick={() => switchTab("reset")} className="text-primary font-semibold hover:underline">
+                  Redefinir senha
                 </button>
-              </>
-            )}
-          </p>
+              </p>
+            </div>
+          )}
+          {tab === "signup" && (
+            <p className="mt-6 text-center text-xs text-muted-foreground">
+              Já tem conta?{" "}
+              <button onClick={() => switchTab("login")} className="text-primary font-semibold hover:underline">
+                Entrar
+              </button>
+            </p>
+          )}
         </div>
       </DialogContent>
     </Dialog>
@@ -294,14 +472,14 @@ function Field({
 }
 
 function PasswordField({
-  value, onChange, show, toggle, error, autoComplete,
+  value, onChange, show, toggle, error, autoComplete, label = "Senha",
 }: {
   value: string; onChange: (v: string) => void; show: boolean; toggle: () => void;
-  error?: string; autoComplete?: string;
+  error?: string; autoComplete?: string; label?: string;
 }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Senha</label>
+      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">{label}</label>
       <div className={`flex items-center gap-2 h-12 rounded-xl border bg-background px-3.5 transition ${error ? "border-destructive" : "border-border focus-within:border-primary/60"}`}>
         <Lock className="h-4 w-4 text-muted-foreground" />
         <input
