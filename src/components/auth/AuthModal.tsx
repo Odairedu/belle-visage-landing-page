@@ -227,26 +227,38 @@ export function AuthModal() {
         </div>
 
         <div className="px-6 pb-6 pt-5">
-          {/* Tabs */}
-          <div className="relative grid grid-cols-2 p-1 rounded-full bg-muted mb-6">
-            <span
-              className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-background shadow-soft transition-all duration-300 ease-out"
-              style={{ left: tab === "login" ? "4px" : "calc(50% + 0px)" }}
-              aria-hidden
-            />
-            {(["login", "signup"] as Tab[]).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => switchTab(t)}
-                className={`relative z-10 h-10 rounded-full text-sm font-semibold transition-colors ${
-                  tab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t === "login" ? "Entrar" : "Cadastrar"}
-              </button>
-            ))}
-          </div>
+          {/* Tabs (hidden during reset) */}
+          {tab !== "reset" && (
+            <div className="relative grid grid-cols-2 p-1 rounded-full bg-muted mb-6">
+              <span
+                className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-background shadow-soft transition-all duration-300 ease-out"
+                style={{ left: tab === "login" ? "4px" : "calc(50% + 0px)" }}
+                aria-hidden
+              />
+              {(["login", "signup"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => switchTab(t)}
+                  className={`relative z-10 h-10 rounded-full text-sm font-semibold transition-colors ${
+                    tab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t === "login" ? "Entrar" : "Cadastrar"}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {tab === "reset" && (
+            <button
+              type="button"
+              onClick={() => { resetResetFlow(); switchTab("login"); }}
+              className="mb-4 inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Voltar para entrar
+            </button>
+          )}
 
           {/* Forms */}
           <div className="relative">
