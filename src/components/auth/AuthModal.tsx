@@ -69,6 +69,75 @@ export function AuthModal() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // reset password flow
+  const [resetStep, setResetStep] = useState<ResetStep>("verify");
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetPhone, setResetPhone] = useState("");
+  const [newPwd, setNewPwd] = useState("");
+  const [confirmPwd, setConfirmPwd] = useState("");
+  const [showNewPwd, setShowNewPwd] = useState(false);
+  const callResetPassword = useServerFn(resetPasswordByEmail);
+
+  const resetResetFlow = () => {
+    setResetStep("verify");
+    setResetEmail("");
+    setResetPhone("");
+    setNewPwd("");
+    setConfirmPwd("");
+    setShowNewPwd(false);
+  };
+
+  const handleResetVerify = (e: React.FormEvent) => {
+    e.preventDefault();
+    reset();
+    const schema = z.object({
+      email: z.string().trim().email({ message: "Email inválido" }),
+      phone: z.string().min(14, { message: "Telefone inválido" }),
+    });
+    const parsed = schema.safeParse({ email: resetEmail, phone: resetPhone });
+    if (!parsed.success) {
+      const errs: Record<string, string> = {};
+      parsed.error.issues.forEach((i) => (errs[i.path[0] as string] = i.message));
+      setErrors(errs);
+      return;
+    }
+    setResetStep("verified");
+    setTimeout(() => setResetStep("newpwd"), 1200);
+  };
+
+  const handleNewPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    reset();
+    if (newPwd.length < 6) {
+      setErrors({ newPwd: "Senha deve ter ao menos 6 caracteres" });
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      setErrors({ confirmPwd: "As senhas não coincidem" });
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await callResetPassword({
+        data: { email: resetEmail, newPassword: newPwd },
+      });
+      setLoading(false);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setResetStep("success");
+      setTimeout(() => {
+        resetResetFlow();
+        switchTab("login");
+        setLoginEmail(resetEmail);
+      }, 2200);
+    } catch {
+      setLoading(false);
+      toast.error("Erro ao alterar senha. Tente novamente.");
+    }
+  };
+
   const reset = () => {
     setErrors({});
     setShowPwd(false);
