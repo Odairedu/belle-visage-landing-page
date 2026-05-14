@@ -284,7 +284,7 @@ export function AuthModal() {
                 />
                 <SubmitButton loading={loading} label="Entrar" />
               </form>
-            ) : (
+            ) : tab === "signup" ? (
               <form onSubmit={handleSignup} className="space-y-4 animate-fade-up">
                 <Field
                   icon={<UserIcon className="h-4 w-4" />}
