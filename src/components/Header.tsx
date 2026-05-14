@@ -19,6 +19,7 @@ export function Header() {
           <a href="#produto" className="hover:text-primary transition-colors">Produto</a>
           <a href="#beneficios" className="hover:text-primary transition-colors">Benefícios</a>
           <a href="#marca" className="hover:text-primary transition-colors">A Marca</a>
+          <Link to="/suporte" className="hover:text-primary transition-colors" activeProps={{ className: "text-primary font-semibold" }}>Suporte</Link>
         </nav>
 
         <div className="flex-1 hidden sm:flex max-w-md mx-auto">
