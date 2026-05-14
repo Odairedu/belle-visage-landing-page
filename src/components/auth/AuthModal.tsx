@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { Eye, EyeOff, Loader2, Mail, Lock, User as UserIcon, Phone, IdCard } from "lucide-react";
+import { Eye, EyeOff, Loader2, Mail, Lock, User as UserIcon, Phone, IdCard, CheckCircle2, ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { resetPasswordByEmail } from "@/lib/auth.functions";
 import { useAuth } from "./AuthProvider";
 
-type Tab = "login" | "signup";
+type Tab = "login" | "signup" | "reset";
+type ResetStep = "verify" | "verified" | "newpwd" | "success";
 
 // CPF validation (digits + checksum)
 function isValidCPF(raw: string) {
