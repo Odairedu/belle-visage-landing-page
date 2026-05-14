@@ -334,24 +334,110 @@ export function AuthModal() {
                 />
                 <SubmitButton loading={loading} label="Criar conta" />
               </form>
+            ) : (
+              <div className="animate-fade-up">
+                {resetStep === "verify" && (
+                  <form onSubmit={handleResetVerify} className="space-y-4">
+                    <Field
+                      icon={<Mail className="h-4 w-4" />}
+                      label="E-mail"
+                      type="email"
+                      value={resetEmail}
+                      onChange={setResetEmail}
+                      placeholder="voce@email.com"
+                      error={errors.email}
+                      autoComplete="email"
+                    />
+                    <Field
+                      icon={<Phone className="h-4 w-4" />}
+                      label="Telefone"
+                      value={resetPhone}
+                      onChange={(v) => setResetPhone(maskPhone(v))}
+                      placeholder="(11) 99999-9999"
+                      error={errors.phone}
+                      inputMode="tel"
+                      autoComplete="tel"
+                    />
+                    <SubmitButton loading={false} label="Continuar" />
+                  </form>
+                )}
+
+                {resetStep === "verified" && (
+                  <div className="flex flex-col items-center text-center py-8 gap-3 animate-fade-up">
+                    <div className="h-14 w-14 rounded-full bg-secondary/40 flex items-center justify-center">
+                      <CheckCircle2 className="h-8 w-8 text-primary" />
+                    </div>
+                    <p className="text-sm font-semibold text-foreground">
+                      Dados corretos. Agora defina sua nova senha.
+                    </p>
+                  </div>
+                )}
+
+                {resetStep === "newpwd" && (
+                  <form onSubmit={handleNewPassword} className="space-y-4">
+                    <PasswordField
+                      value={newPwd}
+                      onChange={setNewPwd}
+                      show={showNewPwd}
+                      toggle={() => setShowNewPwd((s) => !s)}
+                      error={errors.newPwd}
+                      autoComplete="new-password"
+                      label="Nova senha"
+                    />
+                    <PasswordField
+                      value={confirmPwd}
+                      onChange={setConfirmPwd}
+                      show={showNewPwd}
+                      toggle={() => setShowNewPwd((s) => !s)}
+                      error={errors.confirmPwd}
+                      autoComplete="new-password"
+                      label="Confirmar nova senha"
+                    />
+                    <SubmitButton loading={loading} label="Alterar senha" />
+                  </form>
+                )}
+
+                {resetStep === "success" && (
+                  <div className="flex flex-col items-center text-center py-8 gap-3 animate-fade-up">
+                    <div className="h-14 w-14 rounded-full bg-secondary/40 flex items-center justify-center">
+                      <CheckCircle2 className="h-8 w-8 text-primary" />
+                    </div>
+                    <p className="text-base font-semibold text-foreground">
+                      Senha alterada com sucesso!
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Redirecionando para o login...
+                    </p>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            {tab === "login" ? (
-              <>Ainda não tem conta?{" "}
+          {tab === "login" && (
+            <div className="mt-6 text-center text-xs text-muted-foreground space-y-2">
+              <p>
+                Ainda não tem conta?{" "}
                 <button onClick={() => switchTab("signup")} className="text-primary font-semibold hover:underline">
                   Cadastre-se
                 </button>
-              </>
-            ) : (
-              <>Já tem conta?{" "}
-                <button onClick={() => switchTab("login")} className="text-primary font-semibold hover:underline">
-                  Entrar
+              </p>
+              <p>
+                Esqueceu sua senha?{" "}
+                <button onClick={() => switchTab("reset")} className="text-primary font-semibold hover:underline">
+                  Redefinir senha
                 </button>
-              </>
-            )}
-          </p>
+              </p>
+            </div>
+          )}
+          {tab === "signup" && (
+            <p className="mt-6 text-center text-xs text-muted-foreground">
+              Já tem conta?{" "}
+              <button onClick={() => switchTab("login")} className="text-primary font-semibold hover:underline">
+                Entrar
+              </button>
+            </p>
+          )}
         </div>
       </DialogContent>
     </Dialog>
